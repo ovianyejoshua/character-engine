@@ -1467,9 +1467,9 @@ function hideError(id) {
 function showLoading(id) { document.getElementById(id).classList.add('visible'); }
 function hideLoading(id) { document.getElementById(id).classList.remove('visible'); }
 
-async function callClaude(system, user) {
+async function callClaude(system, user, maxTokens = 1500) {
   const key = getApiKey();
-  if(!key) throw new Error('Please add your Anthropic API key in the sidebar first.');
+  if(!key) throw new Error('Please add your Anthropic API key in Settings first.');
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -1480,7 +1480,7 @@ async function callClaude(system, user) {
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4000,
+      max_tokens: maxTokens,
       system,
       messages: [{ role: 'user', content: user }]
     })
@@ -1548,7 +1548,7 @@ PERSONA EXPRESSION:
 [How THIS specific character — with THIS specific life — expresses their assigned persona. Not generic persona behavior. This person's version of it. The persona must be fused with the backstory, not layered on top.]`;
 
   try {
-    const result = await callClaude(system, prompt);
+    const result = await callClaude(system, prompt, 4000);
     document.getElementById('profile-output').value = result;
     document.getElementById('create-s1').style.display = 'none';
     document.getElementById('create-s2').style.display = 'block';
