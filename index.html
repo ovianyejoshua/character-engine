@@ -741,6 +741,19 @@ textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
   <button class="mobile-nav-item" onclick="mobileNav('create')">Create character</button>
   <button class="mobile-nav-item" onclick="mobileNav('write')">Write post</button>
   <button class="mobile-nav-item" onclick="mobileNav('library')">Library</button>
+  <button class="mobile-nav-item" onclick="mobileNav('settings')">Settings & API key</button>
+  <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid rgba(247,244,239,0.08)">
+    <label style="font-size:11px;color:rgba(247,244,239,0.4);display:block;margin-bottom:8px;letter-spacing:0.04em">Anthropic API key</label>
+    <input
+      type="password"
+      id="api-key-mobile"
+      placeholder="sk-ant-..."
+      oninput="saveApiKeyMobile(this.value)"
+      style="width:100%;padding:10px 12px;background:rgba(247,244,239,0.07);border:1px solid rgba(247,244,239,0.15);border-radius:8px;color:rgba(247,244,239,0.85);font-size:13px;font-family:monospace;outline:none"
+    >
+    <p style="font-size:11px;color:rgba(247,244,239,0.3);margin-top:8px;line-height:1.5">Stored in your browser only. Never sent anywhere except Anthropic.</p>
+    <div id="mobile-key-status" style="margin-top:8px;font-size:12px;color:rgba(247,244,239,0.4);display:none"></div>
+  </div>
 </nav>
 
 <div class="app-shell">
@@ -793,6 +806,13 @@ textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
         </svg>
         Library
       </button>
+      <button class="nav-item" onclick="showScreen('settings')" id="nav-settings">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="8" cy="8" r="2.5"/>
+          <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/>
+        </svg>
+        Settings
+      </button>
     </div>
 
     <div class="sidebar-footer">
@@ -818,6 +838,12 @@ textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
       <div class="page-header">
         <h1 class="page-title">Welcome</h1>
         <p class="page-subtitle">Create fictional characters. Write human-sounding Reddit posts. Every post begins with a real person's life.</p>
+      </div>
+
+      <div id="no-key-banner" style="display:none;background:var(--accent-light);border:1px solid rgba(139,58,42,0.2);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1.25rem">
+        <p style="font-size:14px;font-weight:500;color:var(--accent);margin-bottom:4px">API key required</p>
+        <p style="font-size:13px;color:var(--accent);margin-bottom:12px;opacity:0.8">You need an Anthropic API key to use this tool.</p>
+        <button class="btn btn-sm btn-accent" onclick="showScreen('settings')">Add API key →</button>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:2rem">
@@ -1212,6 +1238,44 @@ textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
       </div>
     </div>
 
+
+    <!-- SETTINGS -->
+    <div class="screen" id="screen-settings">
+      <div class="page-header">
+        <h1 class="page-title">Settings</h1>
+        <p class="page-subtitle">Add your Anthropic API key to start creating characters and writing posts.</p>
+      </div>
+      <div class="card">
+        <p class="card-title">Anthropic API key</p>
+        <div class="field">
+          <label class="field-label">Your API key</label>
+          <p class="field-hint">Get your key from <strong>console.anthropic.com</strong> then API Keys. Stored in your browser only.</p>
+          <input type="password" id="api-key-settings" placeholder="sk-ant-..." oninput="saveApiKeySettings(this.value)" style="font-family:var(--font-mono);font-size:13px">
+        </div>
+        <div id="settings-key-status" style="font-size:13px;margin-top:8px;color:var(--green);display:none">API key saved.</div>
+        <div style="margin-top:1rem;display:flex;gap:10px">
+          <button class="btn btn-sm" onclick="toggleKeyVisibility()">Show / hide key</button>
+          <button class="btn btn-sm btn-primary" onclick="testApiKey()">Test connection</button>
+        </div>
+      </div>
+      <div class="card">
+        <p class="card-title">Cost guide</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">Create one character profile</span><span style="font-weight:500">~$0.03 to $0.05</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">Generate one post (200 words)</span><span style="font-weight:500">~$0.01 to $0.02</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">10 posts per day, 5 days a week</span><span style="font-weight:500">~$1 to $2 per week</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">$5 of credit</span><span style="font-weight:500">~300 to 500 posts</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <p class="card-title">How to get an API key</p>
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div style="display:flex;gap:1rem;align-items:flex-start"><span style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--accent);line-height:1;flex-shrink:0">1</span><div><p style="font-size:14px;font-weight:500;margin-bottom:2px">Go to console.anthropic.com</p><p style="font-size:13px;color:var(--muted)">Sign up or log in with your email.</p></div></div>
+          <div style="display:flex;gap:1rem;align-items:flex-start"><span style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--accent);line-height:1;flex-shrink:0">2</span><div><p style="font-size:14px;font-weight:500;margin-bottom:2px">Add billing credit</p><p style="font-size:13px;color:var(--muted)">Go to Billing and add $5 or $10. At current pricing, $5 generates roughly 300 to 500 posts.</p></div></div>
+          <div style="display:flex;gap:1rem;align-items:flex-start"><span style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--accent);line-height:1;flex-shrink:0">3</span><div><p style="font-size:14px;font-weight:500;margin-bottom:2px">Create an API key</p><p style="font-size:13px;color:var(--muted)">Go to API Keys in the sidebar, click Create Key, copy it, and paste it above.</p></div></div>
+        </div>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -1244,16 +1308,106 @@ let selectedPersona = '';
 
 function saveApiKey(val) {
   localStorage.setItem('ce_api_key', val);
+  syncAllKeyInputs(val);
+}
+
+function saveApiKeyMobile(val) {
+  localStorage.setItem('ce_api_key', val);
+  syncAllKeyInputs(val);
+  const status = document.getElementById('mobile-key-status');
+  if(val.startsWith('sk-ant-')) {
+    status.textContent = 'Key saved.';
+    status.style.color = '#7ab090';
+    status.style.display = 'block';
+  } else {
+    status.style.display = 'none';
+  }
+}
+
+function saveApiKeySettings(val) {
+  localStorage.setItem('ce_api_key', val);
+  syncAllKeyInputs(val);
+  const status = document.getElementById('settings-key-status');
+  if(val.startsWith('sk-ant-')) {
+    status.textContent = 'API key saved.';
+    status.style.display = 'block';
+  } else {
+    status.style.display = 'none';
+  }
+}
+
+function syncAllKeyInputs(val) {
+  const inputs = ['api-key-input','api-key-mobile','api-key-settings'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if(el && el.value !== val) el.value = val;
+  });
 }
 
 function getApiKey() {
-  return document.getElementById('api-key-input').value.trim() ||
-         localStorage.getItem('ce_api_key') || '';
+  return localStorage.getItem('ce_api_key') || '';
 }
 
 function loadApiKey() {
-  const key = localStorage.getItem('ce_api_key');
-  if(key) document.getElementById('api-key-input').value = key;
+  const key = localStorage.getItem('ce_api_key') || '';
+  syncAllKeyInputs(key);
+}
+
+function loadSettingsScreen() {
+  const key = localStorage.getItem('ce_api_key') || '';
+  const settingsInput = document.getElementById('api-key-settings');
+  if(settingsInput) settingsInput.value = key;
+  const status = document.getElementById('settings-key-status');
+  if(status && key.startsWith('sk-ant-')) {
+    status.textContent = 'API key saved.';
+    status.style.display = 'block';
+  }
+}
+
+function toggleKeyVisibility() {
+  const input = document.getElementById('api-key-settings');
+  if(input) input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+async function testApiKey() {
+  const key = getApiKey();
+  const status = document.getElementById('settings-key-status');
+  if(!key) {
+    status.textContent = 'Please enter an API key first.';
+    status.style.color = '#B91C1C';
+    status.style.display = 'block';
+    return;
+  }
+  status.textContent = 'Testing connection...';
+  status.style.color = 'var(--muted)';
+  status.style.display = 'block';
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 10,
+        messages: [{ role: 'user', content: 'Say OK' }]
+      })
+    });
+    const data = await res.json();
+    if(data.content) {
+      status.textContent = 'Connected. Your API key works.';
+      status.style.color = 'var(--green)';
+    } else {
+      status.textContent = 'Error: ' + (data.error?.message || 'Check your key.');
+      status.style.color = '#B91C1C';
+    }
+  } catch(e) {
+    status.textContent = 'Connection failed: ' + e.message;
+    status.style.color = '#B91C1C';
+  }
 }
 
 function saveCharacters() {
@@ -1276,6 +1430,7 @@ function showScreen(name) {
   if(navEl) navEl.classList.add('active');
   if(name==='write') renderCharSelector();
   if(name==='library') renderLibrary();
+  if(name==='settings') loadSettingsScreen();
   updateStats();
   window.scrollTo(0,0);
 }
@@ -1325,7 +1480,7 @@ async function callClaude(system, user) {
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 1500,
+      max_tokens: 4000,
       system,
       messages: [{ role: 'user', content: user }]
     })
@@ -1637,6 +1792,11 @@ function mobileNav(screen) {
 loadApiKey();
 loadCharacters();
 updateStats();
+const _k = localStorage.getItem('ce_api_key');
+if(!_k || !_k.startsWith('sk-ant-')) {
+  const banner = document.getElementById('no-key-banner');
+  if(banner) banner.style.display = 'block';
+}
 </script>
 </body>
 </html>
